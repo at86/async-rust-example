@@ -9,16 +9,18 @@ async fn main() {
     let server = {
         async move {
             let mut incoming = listener.incoming();
+            // Using impl Stream:
             while let Some(conn) = incoming.next().await {
+                sen::atlog!("incoming...");
                 match conn {
                     Err(e) => eprintln!("accept failed = {:?}", e),
                     Ok(mut sock) => {
                         tokio::spawn(async move {
                             let (mut reader, mut writer) = sock.split();
-                            tokio::time::delay_for(tokio::time::Duration::from_secs(8)).await;
+                            tokio::time::delay_for(tokio::time::Duration::from_secs(2)).await;
                             match tokio::io::copy(&mut reader, &mut writer).await {
                                 Ok(amt) => {
-                                    println!("wrote {} bytes", amt);
+                                    sen::atlog!("wrote {} bytes", amt);
                                 }
                                 Err(err) => {
                                     eprintln!("IO error {:?}", err);
